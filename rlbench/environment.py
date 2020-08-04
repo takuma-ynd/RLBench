@@ -193,6 +193,8 @@ class Environment(object):
               self._action_mode.arm == ArmActionMode.ABS_EE_POSE_PLAN or
               self._action_mode.arm == ArmActionMode.DELTA_EE_POSE_PLAN):
             arm_action_size = 7  # pose is always 7
+        elif self._action_mode.arm == ArmActionMode.ABS_EE_XYZ_VELOCITY:
+            arm_action_size = 3  # x, y, z
         return arm_action_size + gripper_action_size
 
     def get_demos(self, task_name: str, amount: int,

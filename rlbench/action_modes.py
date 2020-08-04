@@ -24,6 +24,9 @@ class ArmActionMode(Enum):
     # Absolute end-effector velocity (position (3) and quaternion (4))
     ABS_EE_VELOCITY = 6
 
+    # Absolute end-effector xyz velocity (without quaternion, position (3))
+    ABS_EE_XYZ_VELOCITY = 12
+
     # Change in end-effector velocity (position (3) and quaternion (4))
     DELTA_EE_VELOCITY = 7
 

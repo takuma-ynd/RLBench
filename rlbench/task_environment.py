@@ -244,6 +244,13 @@ class TaskEnvironment(object):
             new_pos = np.array(pose) + (arm_action * _DT)
             self._ee_action(list(new_pos))
 
+        elif self._action_mode.arm == ArmActionMode.ABS_EE_XYZ_VELOCITY:
+
+            self._assert_action_space(arm_action, (3,))
+            pose = self._robot.arm.get_tip().get_pose()
+            new_pos[:3] = np.array(pose)[:3] + (arm_action * _DT)
+            self._ee_action(list(new_pos))
+
         elif self._action_mode.arm == ArmActionMode.DELTA_EE_VELOCITY:
 
             self._assert_action_space(arm_action, (7,))
