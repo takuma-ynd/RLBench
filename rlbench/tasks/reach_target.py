@@ -32,13 +32,15 @@ class ReachTarget(Task):
         for ob in [self.target, self.distractor0, self.distractor1]:
             b.sample(ob, min_distance=0.2,
                      min_rotation=(0, 0, 0), max_rotation=(0, 0, 0))
+        self._init_tip_pos = self.robot.arm.get_tip().get_position(relative_to=self.target)
 
         return ['reach the %s target' % color_name,
                 'touch the %s ball with the panda gripper' % color_name,
                 'reach the %s sphere' %color_name]
 
     def variation_count(self) -> int:
-        return len(colors)
+        # return len(colors)
+        return 1
 
     def base_rotation_bounds(self) -> Tuple[List[float], List[float]]:
         return [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]
@@ -49,3 +51,10 @@ class ReachTarget(Task):
 
     def is_static_workspace(self) -> bool:
         return True
+
+    # def step(self) -> None:
+    #     self._old_tip_relative_pos = self.robot.arm.get_tip().get_position(relative_to=self.target)
+
+    def get_reward(self) -> float:
+        tip_pos = self.robot.arm.get_tip().get_position(relative_to=self.target)
+        return (np.linalg.norm(self._init_tip_pos) - np.linalg.norm(tip_pos)) / np.linalg.norm(self._init_tip_pos)
