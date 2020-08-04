@@ -54,5 +54,4 @@ class ReachTarget(Task):
 
     def get_reward(self) -> float:
         tip_pos = self.robot.arm.get_tip().get_position(relative_to=self.target)
-        print('tip_pos', tip_pos)
         return (np.linalg.norm(self._init_tip_pos) - np.linalg.norm(tip_pos)) / np.linalg.norm(self._init_tip_pos)
