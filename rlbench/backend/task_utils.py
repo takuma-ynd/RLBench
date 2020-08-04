@@ -26,3 +26,30 @@ def sample_procedural_objects(task_base, num_samples, mass=0.1):
         resp.set_parent(task_base)
         created.append(resp)
     return created
+
+def sample_simple_objects(task_base, num_samples, mass=1.2):
+    assets_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                              '../assets/simple_objects')
+    samples = np.random.choice(
+        os.listdir(assets_dir), num_samples, replace=False)
+    print('samples', len(samples))
+    print('samples', samples)
+    created = []
+    for s in samples:
+        respondable = os.path.join(assets_dir, s, s + '.obj')
+        print('s, respondable:', s, respondable)
+        # visual = os.path.join(assets_dir, s, s + '.obj')
+        resp = Shape.import_mesh(respondable, scaling_factor=0.8)
+        # vis = Shape.import_mesh(visual, scaling_factor=0.005)
+        resp.set_renderable(True)
+        # vis.set_renderable(True)
+        # vis.set_parent(resp)
+        # vis.set_dynamic(False)
+        # vis.set_respondable(False)
+        resp.set_dynamic(True)
+        resp.set_mass(mass)
+        resp.set_respondable(True)
+        resp.set_model(True)
+        resp.set_parent(task_base)
+        created.append(resp)
+    return created
