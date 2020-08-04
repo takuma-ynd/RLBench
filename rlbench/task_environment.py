@@ -151,7 +151,7 @@ class TaskEnvironment(object):
         except IKError as e:
             raise InvalidActionError('Could not find a path.') from e
 
-    def step(self, action) -> (Observation, int, bool):
+    def step(self, action) -> (Observation, float, bool):
         # returns observation, reward, done, info
         if not self._reset_called:
             raise RuntimeError(
@@ -295,7 +295,17 @@ class TaskEnvironment(object):
                 self._robot.gripper.release()
 
         success, terminate = self._task.success()
-        return self._scene.get_observation(), int(success), terminate
+        reward = int(success)
+
+        # check if self._task has method "get_reward()"
+        get_reward_is_available = False
+        get_reward_fn = getattr(self._task, "get_reward", None)
+        if callable(get_reward_fn):
+            get_reward_is_available = True
+
+        if get_reward_is_available:
+            reward = self._task.get_reward()
+        return self._scene.get_observation(), reward, terminate
 
     def get_path_observations(self):
         if (self._action_mode.arm != ArmActionMode.DELTA_EE_POSE_PLAN and
