@@ -248,8 +248,9 @@ class TaskEnvironment(object):
 
             self._assert_action_space(arm_action, (3,))
             pose = self._robot.arm.get_tip().get_pose()
-            new_pos[:3] = np.array(pose)[:3] + (arm_action * _DT)
-            self._ee_action(list(new_pos))
+            new_xyz = np.array(pose)[:3] + (arm_action * _DT)
+            new_pose = np.concatenate((new_xyz, pose[3:]), axis=0)
+            self._ee_action(list(new_pose))
 
         elif self._action_mode.arm == ArmActionMode.DELTA_EE_VELOCITY:
 

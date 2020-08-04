@@ -94,6 +94,7 @@ class Environment(object):
                 self._action_mode.arm == ArmActionMode.ABS_EE_POSE or
                 self._action_mode.arm == ArmActionMode.DELTA_EE_POSE or
                 self._action_mode.arm == ArmActionMode.ABS_EE_VELOCITY or
+                self._action_mode.arm == ArmActionMode.ABS_EE_XYZ_VELOCITY or
                 self._action_mode.arm == ArmActionMode.DELTA_EE_VELOCITY or
                 self._action_mode.arm == ArmActionMode.ABS_EE_POSE_PLAN or
                 self._action_mode.arm == ArmActionMode.DELTA_EE_POSE_PLAN):
