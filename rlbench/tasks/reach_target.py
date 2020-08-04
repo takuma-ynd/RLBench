@@ -1,6 +1,7 @@
 from typing import List, Tuple
 import numpy as np
 from pyrep.objects.shape import Shape
+from pyrep.objects.dummy import Dummy
 from pyrep.objects.proximity_sensor import ProximitySensor
 from rlbench.const import colors
 from rlbench.backend.task import Task
@@ -11,9 +12,8 @@ from rlbench.backend.conditions import DetectedCondition
 class ReachTarget(Task):
 
     def init_task(self) -> None:
+        self.init_tip = Dummy('init_tip')
         self.target = Shape('target')
-        self.distractor0 = Shape('distractor0')
-        self.distractor1 = Shape('distractor1')
         self.boundaries = Shape('boundary')
         success_sensor = ProximitySensor('success')
         self.register_success_conditions(
@@ -22,16 +22,15 @@ class ReachTarget(Task):
     def init_episode(self, index: int) -> List[str]:
         color_name, color_rgb = colors[index]
         self.target.set_color(color_rgb)
-        color_choices = np.random.choice(
-            list(range(index)) + list(range(index + 1, len(colors))),
-            size=2, replace=False)
-        for ob, i in zip([self.distractor0, self.distractor1], color_choices):
-            name, rgb = colors[i]
-            ob.set_color(rgb)
         b = SpawnBoundary([self.boundaries])
-        for ob in [self.target, self.distractor0, self.distractor1]:
-            b.sample(ob, min_distance=0.2,
-                     min_rotation=(0, 0, 0), max_rotation=(0, 0, 0))
+        b.sample(self.target, min_distance=0.2,
+                 min_rotation=(0, 0, 0), max_rotation=(0, 0, 0))
+        init_pos = self.init_tip.get_position()
+        print(init_pos)
+        init_rot = self.init_tip.get_orientation()
+        print(init_rot)
+        joint_values = self.robot.arm.solve_ik(init_pos, euler=init_rot)
+        self.robot.arm.set_joint_positions(joint_values)
         self._init_tip_pos = self.robot.arm.get_tip().get_position(relative_to=self.target)
 
         return ['reach the %s target' % color_name,
@@ -57,4 +56,5 @@ class ReachTarget(Task):
 
     def get_reward(self) -> float:
         tip_pos = self.robot.arm.get_tip().get_position(relative_to=self.target)
+        print('tip_pos', tip_pos)
         return (np.linalg.norm(self._init_tip_pos) - np.linalg.norm(tip_pos)) / np.linalg.norm(self._init_tip_pos)
