@@ -26,9 +26,7 @@ class ReachTarget(Task):
         b.sample(self.target, min_distance=0.2,
                  min_rotation=(0, 0, 0), max_rotation=(0, 0, 0))
         init_pos = self.init_tip.get_position()
-        print(init_pos)
         init_rot = self.init_tip.get_orientation()
-        print(init_rot)
         joint_values = self.robot.arm.solve_ik(init_pos, euler=init_rot)
         self.robot.arm.set_joint_positions(joint_values)
         self._init_tip_pos = self.robot.arm.get_tip().get_position(relative_to=self.target)
