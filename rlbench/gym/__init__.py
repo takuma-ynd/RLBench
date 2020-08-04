@@ -26,3 +26,14 @@ for task_file in TASKS:
             'observation_mode': 'vision'
         }
     )
+
+# TEMP:
+register(
+    id='reach_target-ee-vision-v0',
+    entry_point='rlbench.gym:RLBenchEnv',
+    kwargs={
+        'task_class': name_to_task_class('reach_target'),
+        'observation_mode': 'vision',
+        'action_mode': 'ABS_EE_XYZ_VELOCITY'
+    }
+)
