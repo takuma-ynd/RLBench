@@ -287,7 +287,11 @@ class TaskEnvironment(object):
                 self._robot.gripper.release()
 
         success, terminate = self._task.success()
-        return self._scene.get_observation(), int(success), terminate
+        if success:
+            reward = float(success)
+        else:
+            reward = self._task.get_reward()
+        return self._scene.get_observation(), reward, terminate
 
     def get_path_observations(self):
         if (self._action_mode.arm != ArmActionMode.DELTA_EE_POSE_PLAN and
