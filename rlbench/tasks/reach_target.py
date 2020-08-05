@@ -23,14 +23,14 @@ class ReachTarget(Task):
         color_name, color_rgb = colors[index]
         self.target.set_color(color_rgb)
         b = SpawnBoundary([self.boundaries])
-        b.sample(self.target, min_distance=0.2,
+        b.sample(self.target, min_distance=0.1,
                  min_rotation=(0, 0, 0), max_rotation=(0, 0, 0))
         init_pos = self.init_tip.get_position()
         init_rot = self.init_tip.get_orientation()
         # joint_values1 = self.robot.arm.solve_ik(init_pos, euler=init_rot)
         # print('solve_ik\t', joint_values1)
         joint_values = self.robot.arm.get_configs_for_tip_pose(init_pos, euler=init_rot)
-        print('get_configs_for_tip_pose', joint_values)
+        # print('get_configs_for_tip_pose', joint_values)
         self.robot.arm.set_joint_positions(joint_values[0])
         self._init_tip_pos = self.robot.arm.get_tip().get_position(relative_to=self.target)
 
@@ -55,6 +55,7 @@ class ReachTarget(Task):
     # def step(self) -> None:
     #     self._old_tip_relative_pos = self.robot.arm.get_tip().get_position(relative_to=self.target)
 
-    def get_reward(self) -> float:
-        tip_pos = self.robot.arm.get_tip().get_position(relative_to=self.target)
-        return (np.linalg.norm(self._init_tip_pos) - np.linalg.norm(tip_pos)) / np.linalg.norm(self._init_tip_pos)
+    # Make it sparse ;)
+    # def get_reward(self) -> float:
+    #     tip_pos = self.robot.arm.get_tip().get_position(relative_to=self.target)
+    #     return (np.linalg.norm(self._init_tip_pos) - np.linalg.norm(tip_pos)) / np.linalg.norm(self._init_tip_pos)
