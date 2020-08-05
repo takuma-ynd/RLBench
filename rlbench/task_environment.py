@@ -50,6 +50,7 @@ class TaskEnvironment(object):
 
         self._scene.load(self._task)
         self._pyrep.start()
+        self._ik_error_count = 0
 
     def get_name(self) -> str:
         return self._task.get_name()
@@ -71,6 +72,7 @@ class TaskEnvironment(object):
 
     def reset(self) -> (List[str], Observation):
         logging.info('Resetting task: %s' % self._task.get_name())
+        logging.info('ik_error_count: %s' % self._ik_error_count)
 
         self._scene.reset()
         try:
@@ -122,7 +124,25 @@ class TaskEnvironment(object):
                 action[:3], quaternion=action[3:])
             self._robot.arm.set_joint_target_positions(joint_positions)
         except IKError as e:
-            raise InvalidActionError('Could not find a path.') from e
+            print('================================================')
+            print('WARNING: IK Error occured. ignoring the action...')
+            print('ik_error_count', self._ik_error_count)
+            print('tip_pose', self._robot.arm.get_tip().get_pose())
+            print('action', action)
+            print('would alternative ik solver work here?')
+            try:
+                joint_positions = self._robot.arm.get_configs_for_tip_pose(action[:3], quaternion=action[3:])[0]
+                self._robot.arm.set_joint_target_positions(joint_positions)
+                print('Yeah it did!:', joint_pos)
+                print('================================================')
+                self._ik_error_count += 1
+            except Exception as e:
+                print('Well, seems not:', e)
+                print('================================================')
+                self._ik_error_count += 1
+                return
+
+            # raise InvalidActionError('Could not find a path.') from e
         done = False
         while not done:
             self._scene.step()
