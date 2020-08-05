@@ -27,8 +27,11 @@ class ReachTarget(Task):
                  min_rotation=(0, 0, 0), max_rotation=(0, 0, 0))
         init_pos = self.init_tip.get_position()
         init_rot = self.init_tip.get_orientation()
-        joint_values = self.robot.arm.solve_ik(init_pos, euler=init_rot)
-        self.robot.arm.set_joint_positions(joint_values)
+        # joint_values1 = self.robot.arm.solve_ik(init_pos, euler=init_rot)
+        # print('solve_ik\t', joint_values1)
+        joint_values = self.robot.arm.get_configs_for_tip_pose(init_pos, euler=init_rot)
+        print('get_configs_for_tip_pose', joint_values)
+        self.robot.arm.set_joint_positions(joint_values[0])
         self._init_tip_pos = self.robot.arm.get_tip().get_position(relative_to=self.target)
 
         return ['reach the %s target' % color_name,
