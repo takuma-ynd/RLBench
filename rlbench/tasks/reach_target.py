@@ -55,7 +55,6 @@ class ReachTarget(Task):
     # def step(self) -> None:
     #     self._old_tip_relative_pos = self.robot.arm.get_tip().get_position(relative_to=self.target)
 
-    # Make it sparse ;)
-    # def get_reward(self) -> float:
-    #     tip_pos = self.robot.arm.get_tip().get_position(relative_to=self.target)
-    #     return (np.linalg.norm(self._init_tip_pos) - np.linalg.norm(tip_pos)) / np.linalg.norm(self._init_tip_pos)
+     def get_reward(self) -> float:
+         tip_pos = self.robot.arm.get_tip().get_position(relative_to=self.target)
+         return (np.linalg.norm(self._init_tip_pos) - np.linalg.norm(tip_pos)) / np.linalg.norm(self._init_tip_pos)
