@@ -127,23 +127,25 @@ class TaskEnvironment(object):
                 action[:3], quaternion=action[3:])
             self._robot.arm.set_joint_target_positions(joint_positions)
         except IKError as e:
-            print('================================================')
-            print('WARNING: IK Error occured. ignoring the action...')
-            print('ik_error_count', self._ik_error_count)
-            print('tip_pose', self._robot.arm.get_tip().get_pose())
-            print('action', action)
-            print('would alternative ik solver work here?')
-            try:
-                joint_positions = self._robot.arm.get_configs_for_tip_pose(action[:3], quaternion=action[3:])[0]
-                self._robot.arm.set_joint_target_positions(joint_positions)
-                print('Yeah it did!:', joint_pos)
-                print('================================================')
-                self._ik_error_count += 1
-            except Exception as e:
-                print('Well, seems not:', e)
-                print('================================================')
-                self._ik_error_count += 1
-                return
+            # print('================================================')
+            # print('WARNING: IK Error occured on solve_ik(). Ignoring the action...')
+            # print('ik_error_count', self._ik_error_count)
+            # print('tip_pose', self._robot.arm.get_tip().get_pose())
+            # print('action', action)
+            # print('================================================')
+            self._ik_error_count += 1
+            return
+            # print('would alternative ik solver work here?')
+            # try:
+            #     joint_positions = self._robot.arm.get_configs_for_tip_pose(action[:3], quaternion=action[3:])[0]
+            #     self._robot.arm.set_joint_target_positions(joint_positions)
+            #     print('Yeah it did!:', joint_positions)
+            #     print('================================================')
+            # except Exception as e:
+            #     print(e)
+            #     print('ignoring the action...')
+            #     self._ik_error_count += 1
+            #     return
 
             # raise InvalidActionError('Could not find a path.') from e
         done = False
