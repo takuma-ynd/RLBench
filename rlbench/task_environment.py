@@ -95,6 +95,9 @@ class TaskEnvironment(object):
         self._robot.arm.set_control_loop_enabled(ctr_loop)
         self._robot.arm.set_motor_locked_at_zero_velocity(locked)
 
+        self._init_pose = self._robot.arm.get_tip().get_pose()
+        self._counter = 0
+
         # Returns a list of descriptions and the first observation
         return desc, self._scene.get_observation()
 
@@ -269,7 +272,8 @@ class TaskEnvironment(object):
             self._assert_action_space(arm_action, (3,))
             pose = self._robot.arm.get_tip().get_pose()
             new_xyz = np.array(pose)[:3] + (arm_action * _DT)
-            new_pose = np.concatenate((new_xyz, pose[3:]), axis=0)
+            new_pose = np.concatenate((new_xyz, self._init_pose[3:]), axis=0)
+            print('counter {}\tnew_xyz {}\taction {}'.format(self._counter, new_xyz, arm_action))
             self._ee_action(list(new_pose))
 
         elif self._action_mode.arm == ArmActionMode.DELTA_EE_VELOCITY:
@@ -325,6 +329,7 @@ class TaskEnvironment(object):
 
         if get_reward_is_available:
             reward = self._task.get_reward()
+        self._counter += 1
         return self._scene.get_observation(), reward, terminate
 
     def get_path_observations(self):
