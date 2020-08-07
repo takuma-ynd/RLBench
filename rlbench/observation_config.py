@@ -90,3 +90,13 @@ class ObservationConfig(object):
         self.gripper_joint_positions = value
         self.gripper_touch_forces = value
         self.task_low_dim_state = value
+
+    def set_only_poses(self):
+        self.joint_velocities = False
+        self.joint_positions = True
+        self.joint_forces = False
+        self.gripper_open = False
+        self.gripper_pose = True
+        self.gripper_joint_positions = True
+        self.gripper_touch_forces = False
+        self.task_low_dim_state = True

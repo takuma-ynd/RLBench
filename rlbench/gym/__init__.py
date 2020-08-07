@@ -37,3 +37,25 @@ register(
         'action_mode': 'ABS_EE_XYZ_VELOCITY'
     }
 )
+
+# TEMP:
+register(
+    id='reach_target-ee-state-v0',
+    entry_point='rlbench.gym:RLBenchEnv',
+    kwargs={
+        'task_class': name_to_task_class('reach_target'),
+        'observation_mode': 'state',
+        'action_mode': 'ABS_EE_XYZ_VELOCITY'
+    }
+)
+
+# TEMP:
+register(
+    id='reach_target-ee-pose-v0',
+    entry_point='rlbench.gym:RLBenchEnv',
+    kwargs={
+        'task_class': name_to_task_class('reach_target'),
+        'observation_mode': 'pose',
+        'action_mode': 'ABS_EE_XYZ_VELOCITY'
+    }
+)

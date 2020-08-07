@@ -26,6 +26,8 @@ class RLBenchEnv(gym.Env):
         if observation_mode == 'state':
             obs_config.set_all_high_dim(False)
             obs_config.set_all_low_dim(True)
+        elif observation_mode == 'pose':
+            obs_config.set_only_poses()
         elif observation_mode == 'vision':
             obs_config.set_all(True)
         else:
@@ -51,7 +53,7 @@ class RLBenchEnv(gym.Env):
         self.action_space = spaces.Box(
             low=-1.0, high=1.0, shape=(self.env.action_size,))
 
-        if observation_mode == 'state':
+        if observation_mode == 'state' or observation_mode == 'pose':
             self.observation_space = spaces.Box(
                 low=-np.inf, high=np.inf, shape=obs.get_low_dim_data().shape)
         elif observation_mode == 'vision':
@@ -80,7 +82,7 @@ class RLBenchEnv(gym.Env):
                 self._gym_cam.set_render_mode(RenderMode.OPENGL3)
 
     def _extract_obs(self, obs) -> Dict[str, np.ndarray]:
-        if self._observation_mode == 'state':
+        if self._observation_mode == 'state' or self._observation_mode == 'pose':
             return obs.get_low_dim_data()
         elif self._observation_mode == 'vision':
             return {
