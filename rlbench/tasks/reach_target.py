@@ -33,6 +33,7 @@ class ReachTarget(Task):
         # print('get_configs_for_tip_pose', joint_values)
         self.robot.arm.set_joint_positions(joint_values[0])
         self._init_tip_pos = self.robot.arm.get_tip().get_position(relative_to=self.target)
+        self._prev_tip_relative_pos = self._init_tip_pos
 
         return ['reach the %s target' % color_name,
                 'touch the %s ball with the panda gripper' % color_name,
@@ -53,8 +54,11 @@ class ReachTarget(Task):
         return True
 
     # def step(self) -> None:
-    #     self._old_tip_relative_pos = self.robot.arm.get_tip().get_position(relative_to=self.target)
+    #     self._prev_tip_relative_pos = self.robot.arm.get_tip().get_position(relative_to=self.target)
 
     def get_reward(self) -> float:
-        tip_pos = self.robot.arm.get_tip().get_position(relative_to=self.target)
-        return (np.linalg.norm(self._init_tip_pos) - np.linalg.norm(tip_pos)) / np.linalg.norm(self._init_tip_pos)
+        curr_tip_pos = self.robot.arm.get_tip().get_position(relative_to=self.target)
+        prev_dist = np.linalg.norm(self._prev_tip_relative_pos)
+        curr_dist = np.linalg.norm(curr_tip_pos)
+        self._prev_tip_relative_pos = curr_tip_pos
+        return (prev_dist - curr_dist) / np.linalg.norm(self._init_tip_pos)
