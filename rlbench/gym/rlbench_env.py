@@ -30,6 +30,9 @@ class RLBenchEnv(gym.Env):
             obs_config.set_only_poses()
         elif observation_mode == 'vision':
             obs_config.set_all(True)
+        elif observation_mode == 'vision-front':
+            obs_config.set_all(False)
+            obs_config.front_camera.set_all(True)
         else:
             raise ValueError(
                 'Unrecognised observation_mode: %s.' % observation_mode)
