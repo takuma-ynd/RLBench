@@ -59,7 +59,7 @@ class RLBenchEnv(gym.Env):
         if observation_mode == 'state' or observation_mode == 'pose':
             self.observation_space = spaces.Box(
                 low=-np.inf, high=np.inf, shape=obs.get_low_dim_data().shape)
-        elif observation_mode == 'vision':
+        elif 'vision' in observation_mode:
             self.observation_space = spaces.Dict({
                 "state": spaces.Box(
                     low=-np.inf, high=np.inf,
