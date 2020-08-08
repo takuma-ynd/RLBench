@@ -95,6 +95,10 @@ class RLBenchEnv(gym.Env):
                 "wrist_rgb": obs.wrist_rgb,
                 "front_rgb": obs.front_rgb,
             }
+        elif self._observation_mode == 'vision-front':
+            return {
+                "front_rgb": obs.front_rgb
+            }
 
     def render(self, mode='human') -> Union[None, np.ndarray]:
         if mode != self._render_mode:
