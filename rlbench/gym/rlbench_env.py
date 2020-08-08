@@ -19,20 +19,40 @@ class RLBenchEnv(gym.Env):
     def __init__(self, task_class, observation_mode='state',
                  render_mode: Union[None, str] = None,
                  action_mode: Union[None, str] = None):
-        self._observation_mode = observation_mode
+        self._raw_observation_mode = observation_mode
+        obs_split = self._raw_observation_mode.split('-')
+        if len(obs_split) == 2:
+            self._observation_mode, self._observation_submode = obs_split
+        else:
+            self._observation_mode = obs_split
+            self._observation_submode = None
+
         self._render_mode = render_mode
         self._action_mode = action_mode
         obs_config = ObservationConfig()
-        if observation_mode == 'state':
+
+
+        if self._observation_mode == 'state':
+            assert self._observation_submode is None
             obs_config.set_all_high_dim(False)
             obs_config.set_all_low_dim(True)
-        elif observation_mode == 'pose':
+        elif self._observation_mode == 'pose':
+            assert self._observation_submode is None
             obs_config.set_only_poses()
-        elif observation_mode == 'vision':
-            obs_config.set_all(True)
-        elif observation_mode == 'vision-front':
-            obs_config.set_all(False)
-            obs_config.front_camera.set_all(True)
+        elif self._observation_mode == 'vision':
+            obs_config.set_all_low_dim(True)
+            obs_config.set_all_high_dim(False)
+            if self._observation_submode == 'front':
+                obs_config.front_camera.set_all(True)
+            elif self._observation_submode == 'wrist':
+                obs_config.wrist_camera.set_all(True)
+            elif self._observation_submode == 'right_shoulder':
+                obs_config.right_shoulder_camera.set_all(True)
+            elif self._observation_submode == 'left_shoulder':
+                obs_config.left_shoulder_camera.set_all(True)
+            else:
+                assert self._observation_submode is None
+                obs_config.set_all(True)
         else:
             raise ValueError(
                 'Unrecognised observation_mode: %s.' % observation_mode)
@@ -56,23 +76,31 @@ class RLBenchEnv(gym.Env):
         self.action_space = spaces.Box(
             low=-1.0, high=1.0, shape=(self.env.action_size,))
 
-        if observation_mode == 'state' or observation_mode == 'pose':
+        if self._observation_mode == 'state' or observation_mode == 'pose':
             self.observation_space = spaces.Box(
                 low=-np.inf, high=np.inf, shape=obs.get_low_dim_data().shape)
-        elif 'vision' in observation_mode:
-            self.observation_space = spaces.Dict({
-                "state": spaces.Box(
-                    low=-np.inf, high=np.inf,
-                    shape=obs.get_low_dim_data().shape),
-                "left_shoulder_rgb": spaces.Box(
-                    low=0, high=1, shape=obs.left_shoulder_rgb.shape),
-                "right_shoulder_rgb": spaces.Box(
-                    low=0, high=1, shape=obs.right_shoulder_rgb.shape),
-                "wrist_rgb": spaces.Box(
-                    low=0, high=1, shape=obs.wrist_rgb.shape),
-                "front_rgb": spaces.Box(
-                    low=0, high=1, shape=obs.front_rgb.shape),
-                })
+        elif self._observation_mode == 'vision':
+            # Ah.., it's dirty...
+            space_dict = {}
+            space_dict['state'] = spaces.Box(low=-np.inf, high=np.inf, shape=obs.get_low_dim_data().shape)
+            if self._observation_submode == 'front':
+                space_dict['front_rgb'] = spaces.Box(low=0, high=1, shape=obs.front_rgb.shape)
+            elif self._observation_submode == 'left_shoulder':
+                space_dict['left_shoulder_rgb'] = spaces.Box(low=0, high=1, shape=obs.left_shoulder_rgb.shape)
+            elif self._observation_submode == 'right_shoulder':
+                space_dict['right_shoulder_rgb'] = spaces.Box(low=0, high=1, shape=obs.right_shoulder_rgb.shape)
+            elif self._observation_submode == 'wrist':
+                space_dict['wrist_rgb'] = spaces.Box(low=0, high=1, shape=obs.wrist_rgb.shape)
+            else:
+                assert self._observation_submode is None
+                space_dict = {'state': spaces.Box(low=-np.inf, high=np.inf, shape=obs.get_low_dim_data().shape),
+                              'front_rgb': spaces.Box(low=0, high=1, shape=obs.front_rgb.shape),
+                              'left_shoulder_rgb': spaces.Box(low=0, high=1, shape=obs.left_shoulder_rgb.shape),
+                              'right_shoulder_rgb': spaces.Box(low=0, high=1, shape=obs.right_shoulder_rgb.shape),
+                              "wrist_rgb": spaces.Box(low=0, high=1, shape=obs.wrist_rgb.shape)
+                }
+
+            self.observation_space = spaces.Dict(space_dict)
 
         if render_mode is not None:
             # Add the camera to the scene
@@ -94,10 +122,6 @@ class RLBenchEnv(gym.Env):
                 "right_shoulder_rgb": obs.right_shoulder_rgb,
                 "wrist_rgb": obs.wrist_rgb,
                 "front_rgb": obs.front_rgb,
-            }
-        elif self._observation_mode == 'vision-front':
-            return {
-                "front_rgb": obs.front_rgb
             }
 
     def render(self, mode='human') -> Union[None, np.ndarray]:
