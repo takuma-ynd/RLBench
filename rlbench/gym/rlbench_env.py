@@ -24,7 +24,7 @@ class RLBenchEnv(gym.Env):
         if len(obs_split) == 2:
             self._observation_mode, self._observation_submode = obs_split
         else:
-            self._observation_mode = obs_split
+            self._observation_mode = obs_split[0]
             self._observation_submode = None
 
         self._render_mode = render_mode
