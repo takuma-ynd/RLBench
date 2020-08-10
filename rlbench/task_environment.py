@@ -76,6 +76,7 @@ class TaskEnvironment(object):
 
         self._scene.reset()
         try:
+            logging.info('self._scene.init_episode()...')
             desc = self._scene.init_episode(
                 self._variation_number, max_attempts=_MAX_RESET_ATTEMPTS,
                 randomly_place=not self._static_positions)

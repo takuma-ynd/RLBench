@@ -148,6 +148,7 @@ class Scene(object):
         self._active_task.set_initial_objects_in_scene()
 
     def get_observation(self) -> Observation:
+        print('running get_observation()...')
         tip = self._robot.arm.get_tip()
 
         joint_forces = None
@@ -201,15 +202,19 @@ class Scene(object):
                 mask = mask_fn(sensor.capture_rgb())
             return mask
 
+        print('get_rgb_depth: left_shoulder_rgb')
         left_shoulder_rgb, left_shoulder_depth = get_rgb_depth(
             self._cam_over_shoulder_left, lsc_ob.rgb, lsc_ob.depth,
             lsc_ob.rgb_noise, lsc_ob.depth_noise)
+        print('get_rgb_depth: right_shoulder_rgb')
         right_shoulder_rgb, right_shoulder_depth = get_rgb_depth(
             self._cam_over_shoulder_right, rsc_ob.rgb, rsc_ob.depth,
             rsc_ob.rgb_noise, rsc_ob.depth_noise)
+        print('get_rgb_depth: wrist_shoulder_rgb')
         wrist_rgb, wrist_depth = get_rgb_depth(
             self._cam_wrist, wc_ob.rgb, wc_ob.depth,
             wc_ob.rgb_noise, wc_ob.depth_noise)
+        print('get_rgb_depth: front_rgb')
         front_rgb, front_depth = get_rgb_depth(
             self._cam_front, fc_ob.rgb, fc_ob.depth,
             fc_ob.rgb_noise, fc_ob.depth_noise)
@@ -223,6 +228,7 @@ class Scene(object):
         front_mask = get_mask(self._cam_front_mask,
                               fc_mask_fn) if fc_ob.mask else None
 
+        print('constructing observation...')
         obs = Observation(
             left_shoulder_rgb=left_shoulder_rgb,
             left_shoulder_depth=left_shoulder_depth,
@@ -261,6 +267,7 @@ class Scene(object):
             task_low_dim_state=(
                 self._active_task.get_low_dim_state() if
                 self._obs_config.task_low_dim_state else None))
+        print('decorating observation...')
         obs = self._active_task.decorate_observation(obs)
         return obs
 

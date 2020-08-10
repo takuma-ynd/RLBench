@@ -137,6 +137,7 @@ class RLBenchEnv(gym.Env):
             return self._gym_cam.capture_rgb()
 
     def reset(self) -> Dict[str, np.ndarray]:
+        print('calling self.task.reset()...')
         descriptions, obs = self.task.reset()
         del descriptions  # Not used.
         return self._extract_obs(obs)
